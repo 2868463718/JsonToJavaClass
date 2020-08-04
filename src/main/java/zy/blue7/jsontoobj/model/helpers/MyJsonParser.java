@@ -12,7 +12,9 @@ import zy.blue7.jsontoobj.utils.FileUtils;
 import zy.blue7.jsontoobj.utils.MyProperties;
 import zy.blue7.jsontoobj.utils.StringUtils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -29,6 +31,7 @@ public class MyJsonParser implements IMyJsonParser {
     @Autowired
     private Environment environment;
 
+
     @Override
     public void parse(String packagePath,String jsonStr) throws Exception {
         jsonParser=new JsonParser();
@@ -42,6 +45,7 @@ public class MyJsonParser implements IMyJsonParser {
 //      这里传进来的classname都是小写 a/b/c
 
 
+        List<String> importList=new ArrayList<>();
         Map<String,String> map=new HashMap<>();
         for(Map.Entry<String, JsonElement> entry:jsonObj.entrySet()){
 
@@ -101,12 +105,17 @@ public class MyJsonParser implements IMyJsonParser {
         }
 //      判断classname是否包含 / 包含说明是包下的一个类，要将其最后面的类名首字母大写 a.java--》A.java
         if(!packagePath.contains("/")){
-            FileUtils.writeToJava("zy.blue7.model", environment.getProperty("rootPath")+"/" +StringUtils.toUpperCaseFirstOne(packagePath)+".java",map);
+            FileUtils.writeToJava(environment.getProperty("coordinate"), environment.getProperty("rootPath")+"/" +StringUtils.toUpperCaseFirstOne(packagePath)+".java",map);
         }else{
-            //这里是将类名取出来，改为大写，因为classname是  a/b/c.java  ---->a/b/C.java, 包名小写，类名大写
+            //这里是将类名取出来，改为大写，因为classname是  a/b/c  ---->a/b/C, 包名小写，类名大写,这里C 是类名，下面会拼写.java
             String classNameUpper=StringUtils.toUpperCaseFirstOne(packagePath.substring(packagePath.lastIndexOf("/")+1));
+            //这里是截取前缀，即a/b/
             String classNamePro=packagePath.substring(0,packagePath.lastIndexOf("/")+1);
-            FileUtils.writeToJava("zy.blue7.model", environment.getProperty("rootPath")+"/" +classNamePro+classNameUpper+".java",map);
+
+            //获取包名的相对位置，相对于坐标的相对位置，就是 坐标 加这个字符串就是这个类的包名
+            String packAgeRelativeName=classNamePro.substring(0,classNamePro.lastIndexOf("/")).replace("/",".");
+
+            FileUtils.writeToJava(environment.getProperty("coordinate")+"."+packAgeRelativeName, environment.getProperty("rootPath")+"/" +classNamePro+classNameUpper+".java",map);
         }
 
     }
