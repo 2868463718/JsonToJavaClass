@@ -51,7 +51,15 @@ public class MyJsonParser implements IMyJsonParser {
 
             JsonElement dataTypeEl=entry.getValue();
 
+
             String dataName=entry.getKey();
+//            这里是硬编码只考虑一种情况，如果不去掉@，转换成的Java 属性名 就会出现不合法的情况
+//            当然可能还有其他不合法的情况，这里先不说，
+            if(dataName.startsWith("@")){
+                dataName=dataName.substring(1);
+            }
+ //          将类的属性名首字母小写，后面需要大写的地方再更改
+            dataName=StringUtils.toLowerCaseFirstOne(dataName);
 
 //            System.out.println(entry.toString());
             /**
@@ -157,6 +165,5 @@ System.out.println(StringUtils.toLowerCaseFirstOne(packagePath)+"/"+ StringUtils
         String importPath=environment.getProperty("coordinate")+"."+strPro+"."+strLast;
         return importPath;
     }
-
 
 }
