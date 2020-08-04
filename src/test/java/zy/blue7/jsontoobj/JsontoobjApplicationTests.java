@@ -33,7 +33,7 @@ class JsontoobjApplicationTests {
         map.put("name","String");
         map.put("age","Integer");
         map.put("user","User");
-        FileUtils.writeToJava("zy.blue7.jsontoobj.utils","d:/a/a.java",map);
+        FileUtils.writeToJava("zy.blue7.jsontoobj.utils","d:/a/a.java",map,null);
     }
 
     @Test

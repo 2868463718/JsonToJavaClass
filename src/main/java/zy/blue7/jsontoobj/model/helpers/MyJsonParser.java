@@ -9,7 +9,6 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import zy.blue7.jsontoobj.model.interfaces.IMyJsonParser;
 import zy.blue7.jsontoobj.utils.FileUtils;
-import zy.blue7.jsontoobj.utils.MyProperties;
 import zy.blue7.jsontoobj.utils.StringUtils;
 
 import java.util.ArrayList;
@@ -71,7 +70,25 @@ public class MyJsonParser implements IMyJsonParser {
                     throw new RuntimeException("不知道的数据类型");
                 }
             }else if(dataTypeEl.isJsonObject()){//如果是对象，就调用本方法递归下去
-                this.parse(StringUtils.toLowerCaseFirstOne(packagePath)+"/"+StringUtils.toLowerCaseFirstOne(dataName), (JsonObject) dataTypeEl);
+                String packagePath1=StringUtils.toLowerCaseFirstOne(packagePath)+"/"+StringUtils.toLowerCaseFirstOne(dataName);
+                this.parse(packagePath1, (JsonObject) dataTypeEl);
+System.out.println(packagePath1);
+//  a/b/c 这是个类名字，c后面会添加.java后缀，所以这里将c 大写，然后将 /  变成.  就是要导入的类
+
+//----------------------------获取import列表--------------------------------------------------------
+//              这里就是将 c 大写
+                String strLast=StringUtils.toUpperCaseFirstOne(packagePath1.substring(packagePath1.lastIndexOf("/")+1));
+                //这里是获取 a/b,并且将 / 变成 .
+                String strPro=packagePath1.substring(0,packagePath1.lastIndexOf("/")).replace("/",".");
+
+                //拼接生成 要导入的类的字符串
+                String importPath=environment.getProperty("coordinate")+"."+strPro+"."+strLast;
+
+                //放入list集合
+                importList.add(importPath);
+
+
+//--------------------------------------------------------------------------------
                 map.put(dataName,StringUtils.toUpperCaseFirstOne(dataName));//相当于用key创建一个类，类名就是key，类在本类的属性名也是key，也可以小写
 
             }else if(dataTypeEl.isJsonArray()){//如果是数组
@@ -90,14 +107,18 @@ public class MyJsonParser implements IMyJsonParser {
                     }
                 }else if(jsonElement.isJsonObject()){//如果数组里是 对象，就生成list《dataname》，就调用本方法递归下去
                     this.parse(StringUtils.toLowerCaseFirstOne(packagePath)+"/"+ StringUtils.toLowerCaseFirstOne(dataName), (JsonObject) jsonElement);
-                    map.put(dataName,"List<"+StringUtils.toUpperCaseFirstOne(dataName)+">");//相当于用key创建一个类，类名就是key，类在本类的属性名也是key，也可以小写
+System.out.println(StringUtils.toLowerCaseFirstOne(packagePath)+"/"+ StringUtils.toLowerCaseFirstOne(dataName));
+                    importList.add(this.getImportPath(StringUtils.toLowerCaseFirstOne(packagePath)+"/"+ StringUtils.toLowerCaseFirstOne(dataName)))  ;
+
+                map.put(dataName,"List<"+StringUtils.toUpperCaseFirstOne(dataName)+">");//相当于用key创建一个类，类名就是key，类在本类的属性名也是key，也可以小写
 
                 }else if(jsonElement.isJsonArray()){
                     throw new RuntimeException("数组里嵌套数组，太麻烦，没实现，也用的不多");
                 }else if(jsonElement.isJsonNull()){
                     throw new RuntimeException("数组里是null，这里只是为了 生成实体类，请不要设置为null，方便判断生成的实体类的数据类型");
                 }
-
+//                如果是数组，则添加list的 import类路径
+                    importList.add("java.util.List");
             }else if(dataTypeEl.isJsonNull()){//如果为空
                 throw new RuntimeException("数组里是null，这里只是为了 生成实体类，请不要设置为null，方便判断生成的实体类的数据类型");
             }
@@ -105,7 +126,7 @@ public class MyJsonParser implements IMyJsonParser {
         }
 //      判断classname是否包含 / 包含说明是包下的一个类，要将其最后面的类名首字母大写 a.java--》A.java
         if(!packagePath.contains("/")){
-            FileUtils.writeToJava(environment.getProperty("coordinate"), environment.getProperty("rootPath")+"/" +StringUtils.toUpperCaseFirstOne(packagePath)+".java",map);
+            FileUtils.writeToJava(environment.getProperty("coordinate"), environment.getProperty("rootPath")+"/" +StringUtils.toUpperCaseFirstOne(packagePath)+".java",map,importList);
         }else{
             //这里是将类名取出来，改为大写，因为classname是  a/b/c  ---->a/b/C, 包名小写，类名大写,这里C 是类名，下面会拼写.java
             String classNameUpper=StringUtils.toUpperCaseFirstOne(packagePath.substring(packagePath.lastIndexOf("/")+1));
@@ -115,8 +136,27 @@ public class MyJsonParser implements IMyJsonParser {
             //获取包名的相对位置，相对于坐标的相对位置，就是 坐标 加这个字符串就是这个类的包名
             String packAgeRelativeName=classNamePro.substring(0,classNamePro.lastIndexOf("/")).replace("/",".");
 
-            FileUtils.writeToJava(environment.getProperty("coordinate")+"."+packAgeRelativeName, environment.getProperty("rootPath")+"/" +classNamePro+classNameUpper+".java",map);
+            FileUtils.writeToJava(environment.getProperty("coordinate")+"."+packAgeRelativeName, environment.getProperty("rootPath")+"/" +classNamePro+classNameUpper+".java",map,importList);
         }
 
     }
+
+
+    /**
+     * 获取需要导入的类路径
+     * @param packagePath
+     * @return
+     */
+    private String getImportPath(String packagePath){
+//        这里就是将 c 大写
+        String strLast=StringUtils.toUpperCaseFirstOne(packagePath.substring(packagePath.lastIndexOf("/")+1));
+        //这里是获取 a/b,并且将 / 变成 .
+        String strPro=packagePath.substring(0,packagePath.lastIndexOf("/")).replace("/",".");
+
+        //拼接生成 要导入的类的字符串
+        String importPath=environment.getProperty("coordinate")+"."+strPro+"."+strLast;
+        return importPath;
+    }
+
+
 }

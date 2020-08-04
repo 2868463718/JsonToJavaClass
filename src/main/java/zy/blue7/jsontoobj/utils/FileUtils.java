@@ -5,6 +5,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -23,13 +24,27 @@ public class FileUtils{
      * @param params 类的属性名称和数据类型
      * @throws Exception
      */
-    public static void writeToJava(String packageFile,String filePath,Map<String,String> params) throws Exception {
+    public static void writeToJava(String packageFile, String filePath, Map<String,String> params, List<String> importList) throws Exception {
 
         StringBuilder stringBuilder=new StringBuilder();
         /**
          * 这里是生成Java类的包，以及应该导入的包，以及lombok注解
          **/
         stringBuilder.append("package "+packageFile+";");
+
+        /**
+         * 添加应该导入的类
+         */
+        stringBuilder.append("\r\n");
+
+
+        for(String impor:importList){
+            stringBuilder.append("\r\n");
+            stringBuilder.append("import "+impor+";");
+        }
+
+
+
         stringBuilder.append("\r\n");
         stringBuilder.append("\r\n");
         stringBuilder.append("import lombok.AllArgsConstructor;");
