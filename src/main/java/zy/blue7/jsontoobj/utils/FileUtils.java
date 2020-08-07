@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author blue7
@@ -24,7 +25,7 @@ public class FileUtils{
      * @param params 类的属性名称和数据类型
      * @throws Exception
      */
-    public static void writeToJava(String packageFile, String filePath, Map<String,String> params, List<String> importList) throws Exception {
+    public static void writeToJava(String packageFile, String filePath, Map<String,String> params, Set<String> importSet) throws Exception {
 
         StringBuilder stringBuilder=new StringBuilder();
         /**
@@ -38,7 +39,7 @@ public class FileUtils{
         stringBuilder.append("\r\n");
 
 
-        for(String impor:importList){
+        for(String impor:importSet){
             stringBuilder.append("\r\n");
             stringBuilder.append("import "+impor+";");
         }

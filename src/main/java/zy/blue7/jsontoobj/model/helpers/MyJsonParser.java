@@ -11,10 +11,7 @@ import zy.blue7.jsontoobj.model.interfaces.IMyJsonParser;
 import zy.blue7.jsontoobj.utils.FileUtils;
 import zy.blue7.jsontoobj.utils.StringUtils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author blue7
@@ -32,19 +29,19 @@ public class MyJsonParser implements IMyJsonParser {
 
 
     @Override
-    public void parse(String packagePath,String jsonStr) throws Exception {
+    public void parse(String packageRelativePath,String jsonStr) throws Exception {
         jsonParser=new JsonParser();
         JsonObject jsonObject= (JsonObject) jsonParser.parse(jsonStr);
 //        System.out.println(jsonObject.toString());
-        this.parse(packagePath,jsonObject);
+        this.parse(packageRelativePath,jsonObject);
     }
 
     @Override
-    public void parse(String packagePath, JsonObject jsonObj) throws Exception {
+    public void parse(String packageRelativePath, JsonObject jsonObj) throws Exception {
 //      这里传进来的classname都是小写 a/b/c
 
 
-        List<String> importList=new ArrayList<>();
+        Set<String> importSet=new HashSet<>();
         Map<String,String> map=new HashMap<>();
         for(Map.Entry<String, JsonElement> entry:jsonObj.entrySet()){
 
@@ -78,7 +75,7 @@ public class MyJsonParser implements IMyJsonParser {
                     throw new RuntimeException("不知道的数据类型");
                 }
             }else if(dataTypeEl.isJsonObject()){//如果是对象，就调用本方法递归下去
-                String packagePath1=StringUtils.toLowerCaseFirstOne(packagePath)+"/"+StringUtils.toLowerCaseFirstOne(dataName);
+                String packagePath1=StringUtils.toLowerCaseFirstOne(packageRelativePath)+"/"+StringUtils.toLowerCaseFirstOne(dataName);
                 this.parse(packagePath1, (JsonObject) dataTypeEl);
 System.out.println(packagePath1);
 //  a/b/c 这是个类名字，c后面会添加.java后缀，所以这里将c 大写，然后将 /  变成.  就是要导入的类
@@ -93,7 +90,7 @@ System.out.println(packagePath1);
                 String importPath=environment.getProperty("coordinate")+"."+strPro+"."+strLast;
 
                 //放入list集合
-                importList.add(importPath);
+                importSet.add(importPath);
 
 
 //--------------------------------------------------------------------------------
@@ -114,9 +111,9 @@ System.out.println(packagePath1);
                         throw new RuntimeException("不知道的数据类型");
                     }
                 }else if(jsonElement.isJsonObject()){//如果数组里是 对象，就生成list《dataname》，就调用本方法递归下去
-                    this.parse(StringUtils.toLowerCaseFirstOne(packagePath)+"/"+ StringUtils.toLowerCaseFirstOne(dataName), (JsonObject) jsonElement);
-System.out.println(StringUtils.toLowerCaseFirstOne(packagePath)+"/"+ StringUtils.toLowerCaseFirstOne(dataName));
-                    importList.add(this.getImportPath(StringUtils.toLowerCaseFirstOne(packagePath)+"/"+ StringUtils.toLowerCaseFirstOne(dataName)))  ;
+                    this.parse(StringUtils.toLowerCaseFirstOne(packageRelativePath)+"/"+ StringUtils.toLowerCaseFirstOne(dataName), (JsonObject) jsonElement);
+System.out.println(StringUtils.toLowerCaseFirstOne(packageRelativePath)+"/"+ StringUtils.toLowerCaseFirstOne(dataName));
+                    importSet.add(this.getImportPath(StringUtils.toLowerCaseFirstOne(packageRelativePath)+"/"+ StringUtils.toLowerCaseFirstOne(dataName)))  ;
 
                 map.put(dataName,"List<"+StringUtils.toUpperCaseFirstOne(dataName)+">");//相当于用key创建一个类，类名就是key，类在本类的属性名也是key，也可以小写
 
@@ -126,25 +123,25 @@ System.out.println(StringUtils.toLowerCaseFirstOne(packagePath)+"/"+ StringUtils
                     throw new RuntimeException("数组里是null，这里只是为了 生成实体类，请不要设置为null，方便判断生成的实体类的数据类型");
                 }
 //                如果是数组，则添加list的 import类路径
-                    importList.add("java.util.List");
+                importSet.add("java.util.List");
             }else if(dataTypeEl.isJsonNull()){//如果为空
                 throw new RuntimeException("数组里是null，这里只是为了 生成实体类，请不要设置为null，方便判断生成的实体类的数据类型");
             }
 
         }
 //      判断classname是否包含 / 包含说明是包下的一个类，要将其最后面的类名首字母大写 a.java--》A.java
-        if(!packagePath.contains("/")){
-            FileUtils.writeToJava(environment.getProperty("coordinate"), environment.getProperty("rootPath")+"/" +StringUtils.toUpperCaseFirstOne(packagePath)+".java",map,importList);
+        if(!packageRelativePath.contains("/")){
+            FileUtils.writeToJava(environment.getProperty("coordinate"), environment.getProperty("rootPath")+"/" +StringUtils.toUpperCaseFirstOne(packageRelativePath)+".java",map,importSet);
         }else{
             //这里是将类名取出来，改为大写，因为classname是  a/b/c  ---->a/b/C, 包名小写，类名大写,这里C 是类名，下面会拼写.java
-            String classNameUpper=StringUtils.toUpperCaseFirstOne(packagePath.substring(packagePath.lastIndexOf("/")+1));
+            String classNameUpper=StringUtils.toUpperCaseFirstOne(packageRelativePath.substring(packageRelativePath.lastIndexOf("/")+1));
             //这里是截取前缀，即a/b/
-            String classNamePro=packagePath.substring(0,packagePath.lastIndexOf("/")+1);
+            String classNamePro=packageRelativePath.substring(0,packageRelativePath.lastIndexOf("/")+1);
 
             //获取包名的相对位置，相对于坐标的相对位置，就是 坐标 加这个字符串就是这个类的包名
             String packAgeRelativeName=classNamePro.substring(0,classNamePro.lastIndexOf("/")).replace("/",".");
 
-            FileUtils.writeToJava(environment.getProperty("coordinate")+"."+packAgeRelativeName, environment.getProperty("rootPath")+"/" +classNamePro+classNameUpper+".java",map,importList);
+            FileUtils.writeToJava(environment.getProperty("coordinate")+"."+packAgeRelativeName, environment.getProperty("rootPath")+"/" +classNamePro+classNameUpper+".java",map,importSet);
         }
 
     }
@@ -152,14 +149,14 @@ System.out.println(StringUtils.toLowerCaseFirstOne(packagePath)+"/"+ StringUtils
 
     /**
      * 获取需要导入的类路径
-     * @param packagePath
+     * @param packageRelativePath  包的相对路径就是生成的实体类的根路径到该类的全限定名之间的路径
      * @return
      */
-    private String getImportPath(String packagePath){
+    private String getImportPath(String packageRelativePath){
 //        这里就是将 c 大写
-        String strLast=StringUtils.toUpperCaseFirstOne(packagePath.substring(packagePath.lastIndexOf("/")+1));
+        String strLast=StringUtils.toUpperCaseFirstOne(packageRelativePath.substring(packageRelativePath.lastIndexOf("/")+1));
         //这里是获取 a/b,并且将 / 变成 .
-        String strPro=packagePath.substring(0,packagePath.lastIndexOf("/")).replace("/",".");
+        String strPro=packageRelativePath.substring(0,packageRelativePath.lastIndexOf("/")).replace("/",".");
 
         //拼接生成 要导入的类的字符串
         String importPath=environment.getProperty("coordinate")+"."+strPro+"."+strLast;
