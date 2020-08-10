@@ -31,7 +31,41 @@ class JsontoobjApplicationTests {
     private MyFastJsonParser myFastJsonParser;
 
     String strJson="";
+    String strParseArr="";
+    String strParseArrs="";
     {
+
+         strParseArrs="{\n" +
+                 "    \"f\": [\n" +
+                 "        [\n" +
+                 "            \"dasd\"\n" +
+                 "        ]\n" +
+                 "    ]\n" +
+                 "}";
+         strParseArr="{\n" +
+                 "    \"a\":[\n" +
+                 "        [\n" +
+                 "            {\n" +
+                 "                \"aa\":\"21\"\n" +
+                 "            }\n" +
+                 "        ],[\n" +
+                 "            {\n" +
+                 "                \"aa\":\"232\"\n" +
+                 "            }\n" +
+                 "        ]\n" +
+                 "    ],\n" +
+                 "    \"b\":[\n" +
+                 "        {\n" +
+                 "            \"bb\":90\n" +
+                 "        }\n" +
+                 "    ],\n" +
+                 "    \"f\":[[\n" +
+                 "        \"dasd\"\n" +
+                 "    ]],\n" +
+                 "    \"c\":12,\n" +
+                 "    \"d\":true,\n" +
+                 "    \"e\":34.2\n" +
+                 "}";
          strJson="{\n" +
                  "    \"Header\": {\n" +
                  "        \"@Action\": \"CREATE\",\n" +
@@ -541,6 +575,15 @@ class JsontoobjApplicationTests {
 //        String strJson="{\"Header\":{\"DocumentTimestamp\":\"2019-01-22T07:45:32\",\"DocumentUUID\":\"93853eca-16c0-4a30-b54d-3e30e9c19bcb\"},\"ConsumerBestRecord\":{\"RecordUUID\":\"dd52796b-8135-4a5b-8417-54c98bae4174\",\"BestRecord\":{\"SourceSystemList\":{\"SourceSystem\":[{\"Code\":\"undchnundrtlpround\",\"SourceTimestamp\":\"2019-01-07 17:25:21.0\",\"AffiliateCode\":\"AUS\",\"MarketCode\":\"AUS\",\"DivisionCode\":\"01\",\"BrandCode\":\"1\",\"ConsumerId\":\"1004\"}]},\"Attributes\":{\"RecordTimestamp\":\"2019-01-22 07:10:32.0\",\"SourceTimestamp\":\"2019-01-07 17:25:21.0\",\"CSRInstanceCode\":\"cnsmtlnd\",\"CSRInstanceDescription\":\"Consumer MDM Talend\",\"UniversalKey\":\"007bc773-f0fc-48bb-82b1-786c4dd59ce7\",\"RecognitionServiceCode\":\"cnsmtlndmdm\"},\"PersonalData\":{\"RegDate\":\"2019-01-07 00:00:00.0\",\"RegTouchPointSourceSystem\":{\"SourceTimestamp\":\"2019-01-07 17:25:21.0\",\"MarketCode\":\"AUS\",\"BrandCode\":\"1\",\"TouchPointCode\":\"26\"},\"RegPersonnelSourceSystem\":{\"SourceTimestamp\":\"2019-01-07 17:25:21.0\",\"AffiliateCode\":\"AUS\",\"MarketCode\":\"AUS\",\"DivisionCode\":\"01\",\"BrandCode\":\"1\",\"PersonnelCode\":\"43\"},\"NameGenderCode\":\"fml\",\"GenderCode\":\"fml\",\"ConsumerCountryCode_ISO3\":\"AUS\",\"SpokenLanguageCode\":\"eng\",\"WrittenLanguageCode\":\"englatn\",\"BirthDay\":14,\"BirthMonth\":1,\"BirthYear\":1981,\"EstimatedBirthYear\":1981,\"NameFilledFlag\":\"false\"},\"ProgramList\":null,\"CustomAttributeList\":null},\"DerivedBestRecordList\":[{\"SourceSystemList\":{\"SourceSystem\":[{\"Code\":\"undchnundrtlpround\",\"SourceTimestamp\":\"2019-01-07 17:25:21.0\",\"AffiliateCode\":\"AUS\",\"MarketCode\":\"AUS\",\"DivisionCode\":\"01\",\"BrandCode\":\"1\"}]},\"Attributes\":{\"SourceTimestamp\":\"2019-01-07 17:25:21.0\",\"MarketCode\":\"AUS\",\"BrandCode\":\"1\"},\"PersonalData\":{\"RegDate\":\"2019-01-07 00:00:00.0\",\"RegTouchPointSourceSystem\":{\"MarketCode\":\"AUS\",\"BrandCode\":\"1\",\"TouchPointCode\":\"26\"},\"RegPersonnelSourceSystem\":{\"Code\":\"undchnundrtlpround\",\"SourceTimestamp\":\"2019-01-07 17:25:21.0\",\"AffiliateCode\":\"AUS\",\"MarketCode\":\"AUS\",\"DivisionCode\":\"01\",\"BrandCode\":\"1\",\"PersonnelCode\":\"43\"},\"GenderCode\":\"fml\",\"ConsumerCountryCode_ISO3\":\"AUS\",\"SpokenLanguageCode\":\"eng\",\"WrittenLanguageCode\":\"englatn\",\"BirthDay\":14,\"BirthMonth\":1,\"BirthYear\":1981,\"NameFilledFlag\":\"true\",\"Salutation\":\"Ms\",\"EnglishFirstName\":\"Sue\",\"EnglishLastName\":\"Puglia\",\"EnglishFullName\":\"Sue Puglia\",\"SkinType\":{\"BrandCode\":\"1\"},\"Ethnicity\":{\"MarketCode\":\"AUS\"},\"PreferredTouchPointCodeSourceSystem\":{\"SourceTimestamp\":\"2019-01-07 17:25:21.0\",\"MarketCode\":\"AUS\",\"BrandCode\":\"1\",\"TouchPointCode\":\"26\"},\"LastVisitTouchPointCodeSourceSystem\":{\"SourceTimestamp\":\"2019-01-07 17:25:21.0\",\"MarketCode\":\"AUS\",\"BrandCode\":\"1\"},\"AssignedPersonnelSourceSystem\":{\"Code\":\"undchnundrtlpround\",\"SourceTimestamp\":\"2019-01-07 17:25:21.0\",\"MarketCode\":\"AUS\",\"AffiliateCode\":\"AUS\",\"DivisionCode\":\"01\",\"BrandCode\":\"1\",\"PersonnelCode\":\"43\"},\"HobbyList\":null,\"DoNotContact\":\"false\",\"SkinConcernsList\":null,\"HairTypeList\":null,\"MakeUpConcernList\":null,\"AgeRange\":null},\"ContactInformation\":{\"EMediaList\":{\"EMedia\":[{\"TypeCode\":\"emlprs\",\"SourceTimestamp\":\"2019-01-07 17:25:21.0\"}]},\"PhoneList\":{\"Phone\":[{\"TypeCode\":\"mblprs\",\"SourceTimestamp\":\"2019-01-07 17:25:21.0\"}]},\"AddressList\":null},\"OptInList\":null,\"CrossBrandOptInList\":null,\"AuxiliaryAttributeList\":null,\"TermsAndConditionList\":null,\"CustomAttributeList\":null,\"CustomerGroupList\":null,\"RemarkList\":null,\"NoteList\":null}]}}\n";
 
         myFastJsonParser.parse(environment.getProperty("mainClassName"),strJson);
+    }
+    @Test
+    void testParseArr() throws Exception {
+        myFastJsonParser.parse(environment.getProperty("mainClassName"),strParseArr);
+    }
+
+    @Test
+    void testParseArrs() throws Exception {
+        myFastJsonParser.parse(environment.getProperty("mainClassName"),strParseArrs);
     }
 
     @Test
